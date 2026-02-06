@@ -203,24 +203,26 @@ Call read_me first to learn the element format.`,
   // ============================================================
   // Tool 3: hello (simple test tool)
   // ============================================================
-  server.registerTool(
+  const helloUri = "ui://excalidraw/hello.html";
+  registerAppTool(server,
     "hello",
     {
-      description: "A simple test tool that returns a greeting.",
+      title: "Hello Widget",
+      description: "A simple test tool that returns a greeting widget.",
       inputSchema: z.object({
         name: z.string().describe("Name to greet"),
       }),
       annotations: { readOnlyHint: true },
+      _meta: { ui: { resourceUri: helloUri } },
     },
     async ({ name }): Promise<CallToolResult> => {
-      return { content: [{ type: "text", text: `Hello, ${name}! 👋` }] };
+      return { content: [{ type: "text", text: `Hello, ${name}!` }] };
     },
   );
 
   // ============================================================
   // Resource: hello world HTML (hardcoded, tiny)
   // ============================================================
-  const helloUri = "ui://excalidraw/hello.html";
   registerAppResource(server,
     helloUri,
     helloUri,
