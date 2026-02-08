@@ -351,6 +351,25 @@ function DiagramView({ toolInput, isFinal, displayMode, onElements, editedElemen
         wrapper.appendChild(svg);
       }
 
+      // Auto-correct SVG viewBox to 4:3 (expand smaller dimension, center content)
+      const renderedSvg = wrapper.querySelector("svg");
+      if (renderedSvg && !viewport) {
+        const vb = renderedSvg.getAttribute("viewBox")?.split(" ").map(Number);
+        if (vb && vb.length === 4) {
+          const [vx, vy, vw, vh] = vb;
+          const ratio = vw / vh;
+          if (Math.abs(ratio - 4 / 3) > 0.01) {
+            if (ratio > 4 / 3) {
+              const newH = Math.round(vw * 3 / 4);
+              renderedSvg.setAttribute("viewBox", `${vx} ${vy - Math.round((newH - vh) / 2)} ${vw} ${newH}`);
+            } else {
+              const newW = Math.round(vh * 4 / 3);
+              renderedSvg.setAttribute("viewBox", `${vx - Math.round((newW - vw) / 2)} ${vy} ${newW} ${vh}`);
+            }
+          }
+        }
+      }
+
       // Animate viewport in scene space, convert to SVG space at apply time
       if (viewport) {
         targetVP.current = { ...viewport };
