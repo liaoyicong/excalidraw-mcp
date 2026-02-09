@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "excalidraw-mcp-app",
   "display_name": "Excalidraw",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Hand-drawn diagrams with streaming animations, fullscreen editing, checkpoint/restore, and one-click export to excalidraw.com.",
   "long_description": "An MCP App server that renders Excalidraw diagrams with hand-drawn style. Features streaming SVG rendering with draw-on animations, smooth viewport camera panning, label binding, interactive fullscreen editing with export to excalidraw.com, checkpoint/restore for iterative edits, and screenshot context sent back to Claude for feedback.",
   "author": {
