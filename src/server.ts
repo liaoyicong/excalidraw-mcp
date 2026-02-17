@@ -95,6 +95,13 @@ Canvas background is white.
 - points: [dx, dy] offsets from element x,y
 - endArrowhead: null | "arrow" | "bar" | "dot" | "triangle"
 
+**Freedraw** (pen / freehand path): SVG path \`d\` string, auto-converted to hand-drawn points.
+\`{ "type": "freedraw", "id": "fd1", "x": 100, "y": 100, "d": "M 0 0 C 50 20 100 80 150 100" }\`
+- d: SVG path commands (M, L, C, Q, A, Z etc.), coordinates relative to x,y — start at M 0 0
+- width/height auto-computed from path
+- simulatePressure: true (default) for varying stroke width
+- Examples: wavy line, checkmark, sketched circle, signature, decorative swirl
+
 ### Arrow Bindings
 Arrow: \`"startBinding": { "elementId": "r1", "fixedPoint": [1, 0.5] }\`
 fixedPoint: top=[0.5,0], bottom=[0.5,1], left=[0,0.5], right=[1,0.5]

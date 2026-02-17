@@ -49,7 +49,7 @@ export function playStroke(elementType: string): void {
   if (!initialized || !audioCtx) return;
 
   // Use soft stroke for all element types
-  const isLine = elementType === "arrow" || elementType === "line";
+  const isLine = elementType === "arrow" || elementType === "line" || elementType === "freedraw";
   const buffer = softBuffer;
   if (!buffer) return;
 

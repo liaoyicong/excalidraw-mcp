@@ -5,6 +5,7 @@ import morphdom from "morphdom";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { initPencilAudio, playStroke } from "./pencil-audio";
+import { svgPathToFreedraw } from "./svg-path-to-points";
 import { captureInitialElements, onEditorChange, setStorageKey, loadPersistedElements, getLatestEditedElements, setCheckpointId } from "./edit-context";
 import "./global.css";
 
@@ -49,7 +50,16 @@ function convertRawElements(els: any[]): any[] {
   const pseudoTypes = new Set(["cameraUpdate", "delete", "restoreCheckpoint"]);
   const pseudos = els.filter((el: any) => pseudoTypes.has(el.type));
   const real = els.filter((el: any) => !pseudoTypes.has(el.type));
-  const withDefaults = real.map((el: any) =>
+  // Pre-process freedraw elements: convert SVG path `d` → points
+  const processed = real.map((el: any) => {
+    if (el.type === "freedraw" && el.d && !el.points) {
+      const { points, width, height } = svgPathToFreedraw(el.d);
+      const { d: _d, ...rest } = el;
+      return { ...rest, points, width, height, simulatePressure: el.simulatePressure ?? true };
+    }
+    return el;
+  });
+  const withDefaults = processed.map((el: any) =>
     el.label ? { ...el, label: { textAlign: "center", verticalAlign: "middle", ...el.label } } : el
   );
   const converted = convertToExcalidrawElements(withDefaults, { regenerateIds: false })
