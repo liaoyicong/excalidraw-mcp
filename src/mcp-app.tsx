@@ -81,7 +81,15 @@ function convertRawElements(els: any[]): any[] {
   );
   const converted = convertToExcalidrawElements(withDefaults, { regenerateIds: false })
     .map((el: any) => el.type === "text" ? { ...el, fontFamily: (FONT_FAMILY as any).Excalifont ?? 1 } : el);
-  return [...converted, ...freedraws, ...pseudos];
+
+  // Freedraw elements bypass convertToExcalidrawElements (which doesn't add
+  // defaults for them). Use restore() to populate all required base fields
+  // (seed, version, roughness, opacity, angle, groupIds, etc.).
+  const restoredFreedraws = freedraws.length > 0
+    ? restore({ elements: freedraws }, null, null)?.elements ?? []
+    : [];
+
+  return [...converted, ...restoredFreedraws, ...pseudos];
 }
 
 /** Fix SVG viewBox to 4:3 by expanding the smaller dimension and centering. */
