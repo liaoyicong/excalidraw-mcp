@@ -50,21 +50,38 @@ function convertRawElements(els: any[]): any[] {
   const pseudoTypes = new Set(["cameraUpdate", "delete", "restoreCheckpoint"]);
   const pseudos = els.filter((el: any) => pseudoTypes.has(el.type));
   const real = els.filter((el: any) => !pseudoTypes.has(el.type));
-  // Pre-process freedraw elements: convert SVG path `d` → points
-  const processed = real.map((el: any) => {
-    if (el.type === "freedraw" && el.d && !el.points) {
-      const { points, width, height } = svgPathToFreedraw(el.d);
-      const { d: _d, ...rest } = el;
-      return { ...rest, points, width, height, simulatePressure: el.simulatePressure ?? true };
+
+  // Separate freedraw elements — they need special handling because
+  // convertToExcalidrawElements expects them fully formed (not partial).
+  const freedraws: any[] = [];
+  const others: any[] = [];
+  for (const el of real) {
+    if (el.type === "freedraw") {
+      let fd = el;
+      // Convert SVG path `d` → points if needed
+      if (fd.d && !fd.points) {
+        const { points, width, height } = svgPathToFreedraw(fd.d);
+        const { d: _d, ...rest } = fd;
+        fd = { ...rest, points, width, height };
+      }
+      // Ensure all required freedraw fields
+      fd.simulatePressure = fd.simulatePressure ?? true;
+      fd.pressures = fd.pressures ?? [];
+      fd.lastCommittedPoint = fd.lastCommittedPoint ?? null;
+      fd.strokeColor = fd.strokeColor ?? "#1e1e1e";
+      fd.strokeWidth = fd.strokeWidth ?? 2;
+      freedraws.push(fd);
+    } else {
+      others.push(el);
     }
-    return el;
-  });
-  const withDefaults = processed.map((el: any) =>
+  }
+
+  const withDefaults = others.map((el: any) =>
     el.label ? { ...el, label: { textAlign: "center", verticalAlign: "middle", ...el.label } } : el
   );
   const converted = convertToExcalidrawElements(withDefaults, { regenerateIds: false })
     .map((el: any) => el.type === "text" ? { ...el, fontFamily: (FONT_FAMILY as any).Excalifont ?? 1 } : el);
-  return [...converted, ...pseudos];
+  return [...converted, ...freedraws, ...pseudos];
 }
 
 /** Fix SVG viewBox to 4:3 by expanding the smaller dimension and centering. */
